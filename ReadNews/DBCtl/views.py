@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.shortcuts import HttpResponse
 from django.core import serializers
 from ReadNews import settings
-from DBCtl.models import Article,NewsType,NewsDetail,News
+from DBCtl.models import User,Article,NewsType,NewsDetail,News
 from django.forms.models import model_to_dict
 import requests
 
@@ -50,6 +50,9 @@ def article_update(request):
     articleTime = request.POST.get("articleTime")
     f = request.FILES['picture']
     filePath = os.path.join(settings.MEDIA_ROOT,f.name)
+    with open(filePath,'wb') as fp:
+        for info in f.chunks():
+            fp.write(info)
     print(filePath)
     obj = Article.objects.get(id=id)
     obj.articleTitle = articleTitle
@@ -145,7 +148,7 @@ def newsdetail_add_newsid(request):
     news_detail = news_detail_ret.json()#把response转化为json格式
     print("news detail:",news_detail)
     if news_detail["code"] == 0:
-        return HttpResponse(news_detail['msg'])
+        return HttpResponse("insert failed")
     data = news_detail["data"]#获取data列
     exist_docid = NewsDetail.objects.values('docid')
     #构造一个docid列表，存已经存在数据库中的newsId，避免重复添加数据
@@ -173,3 +176,45 @@ def newsdetail_select_newsid(request):
     json_list = []
     json_list.append(model_to_dict(newsdetail))#构造字典数组
     return HttpResponse(json.dumps(json_list), content_type="application/json")
+
+def user_add(request):
+    nickname = request.POST.get("nickname")
+    password = request.POST.get("password")
+    print("nickname:",nickname,",password:",password)
+    User.objects.create(nickname=nickname,password=password)
+    return HttpResponse("注册成功,请登录")
+
+def user_login(request):
+    nickname = request.POST.get("nickname")
+    password = request.POST.get("password")
+    try:
+        user = User.objects.get(nickname=nickname)
+        if user.password == password:
+            return HttpResponse("登录成功")
+        else:
+            return HttpResponse("用户名或密码错误，请重试")
+    except:
+        return HttpResponse("没有这个用户，请注册")
+
+def user_select(request):
+    nickname = request.GET.get("nickname")
+    user = User.objects.get(nickname=nickname)
+    json_list = []
+    json_list.append(model_to_dict(user))
+    return HttpResponse(json.dumps(json_list), content_type="application/json")
+
+def user_update(request):
+    nickname = request.POST.get("nickname")
+    sex = request.POST.get("sex")
+    sign = request.POST.get("sign")
+    f = request.FILES['avatar']
+    filePath = os.path.join(settings.MEDIA_ROOT,f.name)
+    with open(filePath,'wb') as fp:
+        for info in f.chunks():
+            fp.write(info)
+    user = User.objects.get(nickname=nickname)
+    user.sex = sex
+    user.sign = sign
+    user.avatar = filePath
+    user.save()
+    return HttpResponse("update user success")

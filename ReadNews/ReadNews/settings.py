@@ -79,8 +79,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'readnews',
-        'USER':'debian-sys-maint',
-        'PASSWORD':'KLlxp7T0CZSqAjwn',
+        # 'USER':'debian-sys-maint',
+        # 'PASSWORD':'KLlxp7T0CZSqAjwn',
+        'USER':'root',
+        'PASSWORD':'hu182hao',
         'HOST':'',
         'PORT':'',
     }

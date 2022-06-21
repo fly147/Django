@@ -29,4 +29,8 @@ urlpatterns = [
     path('news/select',dbviews.news_select_typeid),
     path('newsdetail/add',dbviews.newsdetail_add_newsid),
     path('newsdetail/select',dbviews.newsdetail_select_newsid),
+    path('user/add',dbviews.user_add),
+    path('user/login',dbviews.user_login),
+    path('user/select',dbviews.user_select),
+    path('user/update',dbviews.user_update)
 ]
